@@ -1,0 +1,3 @@
+
+
+ For this backend uvicorn needs to run on port 8000, so after running "python -m uvicorn main:app" it should be on http://127.0.0.1:8000. after this is taking care of, we can go and start the frontend.
