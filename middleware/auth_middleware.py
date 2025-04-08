@@ -4,28 +4,26 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from services.login_service import LoginService
 
-app= FastAPI()
+app = FastAPI()
 
 class AuthMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app:FastAPI):
+    def __init__(self, app: FastAPI):
         super().__init__(app)
 
-
-    async def dispatch(self, request, call_next):
-        if request.url.path.startswith("/api/login"):
+    async def dispatch(self, request: Request, call_next):
+        if request.url.path.startswith("/api/login"):  # Allow public auth routes
             return await call_next(request)
-        
-        auth_header= request.header.get("Authorization")
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return JSONResponse(status_code=401, content={"detial:""missing authorization token"})
-        
-        token= auth_header.split("Bearer ")[1]
 
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JSONResponse(status_code=401, content={"detail": "missing authorization token"})  # Properly return 401
+
+        
+        token = auth_header.split("Bearer ")[1]
         try:
             LoginService.verify_token(token)
         except Exception as e:
-            return JSONResponse(status_code=401, content={"detail":str(e)})
-        
-        return await call_next(request)
+            raise HTTPException(status_code=401, detail=str(e))
 
-    
+        return await call_next(request)   
+
