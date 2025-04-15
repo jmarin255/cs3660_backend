@@ -12,7 +12,7 @@ class UserRepository:
                 data = json.load(file)
                 for user in data["users"]:
                     if user["username"] == username:
-                        return User(user["username"], user["name"], user["password_hash"])  # Returns the User object
+                        return User(user["username"], user["name"], user["password_hash"])  
         except FileNotFoundError:
             raise Exception("User file not found")
         return None
