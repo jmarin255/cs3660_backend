@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -11,7 +11,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
 
     async def dispatch(self, request: Request, call_next):
-        if request.url.path.startswith("/api/login"):  # Allow public auth routes
+        PUBLIC_PATHS = {"/api/login", "/health", "/openapi.json"}
+        if request.url.path in PUBLIC_PATHS:  # Allow public auth routes
             return await call_next(request)
 
         auth_header = request.headers.get("Authorization")
@@ -23,7 +24,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
         try:
             LoginService.verify_token(token)
         except Exception as e:
-            raise HTTPException(status_code=401, detail=str(e))
+            return JSONResponse(status_code=401, content={"detail": str(e)})
 
         return await call_next(request)   
-
