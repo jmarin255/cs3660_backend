@@ -1,6 +1,7 @@
 import hashlib
 import jwt
 import datetime
+from models.user_model import User
 from repositories.user_repository import UserRepository
 
 
@@ -12,6 +13,7 @@ class LoginService:
 
 
     # Function to verify a jwt token
+    # we'll keep this one static so it can be used in the middleware
     @staticmethod
     def verify_token(token: str) -> dict:
         try:
@@ -23,8 +25,9 @@ class LoginService:
         except jwt.InvalidTokenError:
             raise Exception("Invalid token")
         
-    # Function to verify login from users.json    
-    def get_login_token(self, username: str, password: str) -> str:
+    # Function to verify login from users.json
+    @staticmethod
+    def get_login_token(username: str, password: str) -> str:
         try:
             # Fetch user from database
             user = self.user_repository.get_user_by_username(username)
