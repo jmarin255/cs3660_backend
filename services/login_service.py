@@ -25,9 +25,15 @@ class LoginService:
         except jwt.InvalidTokenError:
             raise Exception("Invalid token")
         
-    # Function to verify login from users.json
-    @staticmethod
-    def get_login_token(username: str, password: str) -> str:
+    def get_user_and_roles(self, username: str) -> User:
+        try:
+            # Fetch user from database
+            return self.user_repository.get_user_by_username_with_roles(username)
+        except Exception as e:
+            raise Exception(f"Failed to fetch user roles: {str(e)}")
+        
+    # Function to verify login from users.json    
+    def get_login_token(self, username: str, password: str) -> str:
         try:
             # Fetch user from database
             user = self.user_repository.get_user_by_username(username)
