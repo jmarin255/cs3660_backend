@@ -1,19 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException
-from dependency_injector.wiring import Provide, inject
+from fastapi import APIRouter, HTTPException
 
-from containers import Container
 from schemas.login_schema import LoginRequest, LoginResponse, VerifyLoginRequest
 from services.login_service import LoginService
 
 
 router = APIRouter(prefix="/api/login", tags=["Authentication"])
 
-@router.post("", response_model=LoginResponse)
-@inject
-async def login(login: LoginRequest, 
-                login_service: LoginService = Depends(Provide[Container.login_service])):
+@router.post("/", response_model=LoginResponse)
+async def login(login: LoginRequest):
     try:
-        token = login_service.get_login_token(login.username, login.password)
+        token = LoginService.get_login_token(login.username, login.password)
         return LoginResponse(success=True, jwt_token=token)
     except Exception as e:
         raise HTTPException(status_code=401, detail=str(e))
@@ -28,4 +24,5 @@ async def verify(verify_request: VerifyLoginRequest):
         raise HTTPException(status_code=401, detail=str(e))
     
 
+    
     
