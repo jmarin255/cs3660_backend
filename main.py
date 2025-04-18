@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from controllers import login_controller
 from config import settings
+from containers import Container
 
 from middleware.api_gateway_middleware import ApiGatewayAuthMiddleware
 from middleware.auth_middleware import AuthMiddleware
@@ -13,6 +14,8 @@ from schemas.message_schema import MessageResponse
 
 
 app = FastAPI(title="CS3660 Backend Project", version="1.0.0")
+container = Container()
+app.container = container
 
 app.add_middleware(AuthMiddleware)
 # CORS is handled through API Gateway, only need for testing locally
