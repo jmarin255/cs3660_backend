@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
+from repositories.user_repository import UserRepository
 from schemas.login_schema import LoginRequest, LoginResponse, VerifyLoginRequest
 from services.login_service import LoginService
 
@@ -9,7 +10,8 @@ router = APIRouter(prefix="/api/login", tags=["Authentication"])
 @router.post("/", response_model=LoginResponse)
 async def login(login: LoginRequest):
     try:
-        token = LoginService.get_login_token(login.username, login.password)
+        service = LoginService(UserRepository())  
+        token = service.get_login_token(login.username, login.password)  
         return LoginResponse(success=True, jwt_token=token)
     except Exception as e:
         raise HTTPException(status_code=401, detail=str(e))
@@ -26,3 +28,4 @@ async def verify(verify_request: VerifyLoginRequest):
 
     
     
+
