@@ -7,7 +7,7 @@ from services.login_service import LoginService
 
 
 class Container(containers.DeclarativeContainer):
-    wiring_config = containers.WiringConfiguration(modules=["controllers.login_controller", "controllers.swapi_controller"])
+    wiring_config = containers.WiringConfiguration(modules=["controllers.login_controller"])
 
     db_factory = providers.Singleton(DatabaseFactory)
 
