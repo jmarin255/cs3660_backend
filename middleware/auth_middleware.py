@@ -12,18 +12,17 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         PUBLIC_PATHS = {"/api/login", "/health", "/openapi.json"}
-        if request.url.path in PUBLIC_PATHS:  # Allow public auth routes
-            return await call_next(request)
+        path = request.url.path
 
         auth_header = request.headers.get("Authorization")
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return JSONResponse(status_code=401, content={"detail": "missing authorization token"})  # Properly return 401
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split("Bearer ")[1]
+            try:
+                LoginService.verify_token(token)
+            except Exception as e:
+                return JSONResponse(status_code=401, content={"detail": str(e)})
+        elif path not in PUBLIC_PATHS:
+            # If it's not a public path, and token is missing or malformed
+            return JSONResponse(status_code=401, content={"detail": "missing authorization token"})
 
-        
-        token = auth_header.split("Bearer ")[1]
-        try:
-            LoginService.verify_token(token)
-        except Exception as e:
-            return JSONResponse(status_code=401, content={"detail": str(e)})
-
-        return await call_next(request)   
+        return await call_next(request)
